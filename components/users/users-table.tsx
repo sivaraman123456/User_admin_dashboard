@@ -33,6 +33,7 @@ export default function UsersTable() {
     clearSelection,
     toggleSelectAllVisible,
     toggleSelect,
+    isToggled
   } = useUserListStore()
 
   const queryKey = useMemo(() => {
@@ -96,6 +97,7 @@ export default function UsersTable() {
       toast({ title: "Bulk suspend failed", description: "Please try again.", variant: "destructive" })
     }
   }
+  
 
   return (
     <div className="space-y-3">
@@ -118,7 +120,7 @@ export default function UsersTable() {
               <SelectItem value="Rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="secondary" onClick={suspendSelected}>
+          <Button variant="secondary" className={`${ isToggled && 'bg-red-500 text-white hover:bg-red-400 '}`} onClick={suspendSelected}>
             Suspend Selected
           </Button>
         </div>

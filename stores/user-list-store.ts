@@ -14,6 +14,7 @@ type State = {
   page: number
   pageSize: number
   selected: Set<number>
+  isToggled: boolean
 }
 
 type Actions = {
@@ -34,35 +35,44 @@ export const useUserListStore = create<State & Actions>((set, get) => ({
   sortDir: "asc",
   page: 1,
   pageSize: 10,
+  isToggled: false,
   selected: new Set<number>(),
+
   setQuery: (q) => set({ q }),
   setKyc: (kyc) => set({ kyc }),
+
   setSort: (by) => {
     const { sortBy, sortDir } = get()
     if (sortBy === by) {
       set({ sortDir: sortDir === "asc" ? "desc" : "asc" })
     } else {
-      set({ sortBy: by, sortDir: "desc" }) 
+      set({ sortBy: by, sortDir: "desc" })
     }
   },
+
   setPage: (page) => set({ page }),
   setPageSize: (pageSize) => set({ pageSize, page: 1 }),
+
   toggleSelect: (id) => {
     const next = new Set(get().selected)
     if (next.has(id)) next.delete(id)
     else next.add(id)
-    set({ selected: next })
+    set({ selected: next, isToggled: next.size > 0 })  
   },
+
   toggleSelectAllVisible: (ids) => {
     const { selected } = get()
     const allSelected = ids.every((id) => selected.has(id))
     const next = new Set(selected)
+
     if (allSelected) {
       ids.forEach((id) => next.delete(id))
     } else {
       ids.forEach((id) => next.add(id))
     }
-    set({ selected: next })
+
+    set({ selected: next, isToggled: next.size > 0 }) 
   },
-  clearSelection: () => set({ selected: new Set() }),
+
+  clearSelection: () => set({ selected: new Set(), isToggled: false }),
 }))
