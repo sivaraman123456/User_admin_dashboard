@@ -1,22 +1,28 @@
-"use client"
+"use client";
 
-import useSWR from "swr"
-import Link from "next/link"
-import { useEffect, useMemo } from "react"
-import { useUserListStore } from "@/stores/user-list-store"
-import { fetcher } from "@/lib/fetcher"
-import type { UserListResponse, KycStatus } from "@/lib/types"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
+import useSWR from "swr";
+import Link from "next/link";
+import { useEffect, useMemo } from "react";
+import { useUserListStore } from "@/stores/user-list-store";
+import { fetcher } from "@/lib/fetcher";
+import type { UserListResponse, KycStatus } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50]
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 export default function UsersTable() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const {
     q,
     kyc,
@@ -33,32 +39,37 @@ export default function UsersTable() {
     clearSelection,
     toggleSelectAllVisible,
     toggleSelect,
-    isToggled
-  } = useUserListStore()
+    isToggled,
+  } = useUserListStore();
 
   const queryKey = useMemo(() => {
-    const params = new URLSearchParams()
-    if (q) params.set("q", q)
-    if (kyc && kyc !== "All") params.set("kyc", kyc)
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (kyc && kyc !== "All") params.set("kyc", kyc);
     if (sortBy) {
-      params.set("sortBy", sortBy)
-      params.set("sortDir", sortDir)
+      params.set("sortBy", sortBy);
+      params.set("sortDir", sortDir);
     }
-    params.set("page", String(page))
-    params.set("pageSize", String(pageSize))
-    return `/api/users?${params.toString()}`
-  }, [q, kyc, sortBy, sortDir, page, pageSize])
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    return `/api/users?${params.toString()}`;
+  }, [q, kyc, sortBy, sortDir, page, pageSize]);
 
-  const { data, isLoading, error, mutate } = useSWR<UserListResponse>(queryKey, fetcher, {
-    keepPreviousData: true,
-  })
+  const { data, isLoading, error, mutate } = useSWR<UserListResponse>(
+    queryKey,
+    fetcher,
+    {
+      keepPreviousData: true,
+    }
+  );
 
   useEffect(() => {
-    setPage(1)
-  }, [q, kyc])
+    setPage(1);
+  }, [q, kyc]);
 
-  const allVisibleIds = (data?.items ?? []).map((u) => u.id)
-  const allVisibleSelected = allVisibleIds.every((id) => selected.has(id)) && allVisibleIds.length > 0
+  const allVisibleIds = (data?.items ?? []).map((u) => u.id);
+  const allVisibleSelected =
+    allVisibleIds.every((id) => selected.has(id)) && allVisibleIds.length > 0;
 
   async function suspendUser(id: number) {
     try {
@@ -66,19 +77,29 @@ export default function UsersTable() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "suspend" }),
-      })
-      if (!res.ok) throw new Error("Failed to suspend")
-      toast({ title: "User suspended", description: `User #${id} was suspended.` })
-      mutate()
+      });
+      if (!res.ok) throw new Error("Failed to suspend");
+      toast({
+        title: "User suspended",
+        description: `User #${id} was suspended.`,
+      });
+      mutate();
     } catch (e) {
-      toast({ title: "Suspend failed", description: "Please try again.", variant: "destructive" })
+      toast({
+        title: "Suspend failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
     }
   }
 
   async function suspendSelected() {
     if (selected.size === 0) {
-      toast({ title: "No users selected", description: "Select at least one user to suspend." })
-      return
+      toast({
+        title: "No users selected",
+        description: "Select at least one user to suspend.",
+      });
+      return;
     }
     try {
       await Promise.all(
@@ -87,17 +108,23 @@ export default function UsersTable() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "suspend" }),
-          }),
-        ),
-      )
-      toast({ title: "Suspended selected users", description: `${selected.size} users suspended.` })
-      clearSelection()
-      mutate()
+          })
+        )
+      );
+      toast({
+        title: "Suspended selected users",
+        description: `${selected.size} users suspended.`,
+      });
+      clearSelection();
+      mutate();
     } catch {
-      toast({ title: "Bulk suspend failed", description: "Please try again.", variant: "destructive" })
+      toast({
+        title: "Bulk suspend failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
     }
   }
-  
 
   return (
     <div className="space-y-3">
@@ -109,7 +136,10 @@ export default function UsersTable() {
             placeholder="Search name or email"
             className="w-[220px]"
           />
-          <Select value={kyc} onValueChange={(val) => setKyc(val as KycStatus | "All")}>
+          <Select
+            value={kyc}
+            onValueChange={(val) => setKyc(val as KycStatus | "All")}
+          >
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="KYC Status" />
             </SelectTrigger>
@@ -120,12 +150,21 @@ export default function UsersTable() {
               <SelectItem value="Rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="secondary" className={`${ isToggled && 'bg-red-500 text-white hover:bg-red-400 '}`} onClick={suspendSelected}>
+          <Button
+            variant="secondary"
+            className={`${
+              isToggled && "bg-red-500 text-white hover:bg-red-400 "
+            }`}
+            onClick={suspendSelected}
+          >
             Suspend Selected
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={String(pageSize)} onValueChange={(val) => setPageSize(Number(val))}>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(val) => setPageSize(Number(val))}
+          >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Page size" />
             </SelectTrigger>
@@ -148,7 +187,9 @@ export default function UsersTable() {
                 <th className="w-10 px-3 py-2">
                   <Checkbox
                     checked={allVisibleSelected}
-                    onCheckedChange={() => toggleSelectAllVisible(allVisibleIds)}
+                    onCheckedChange={() =>
+                      toggleSelectAllVisible(allVisibleIds)
+                    }
                     aria-label="Select all"
                   />
                 </th>
@@ -162,7 +203,12 @@ export default function UsersTable() {
                     className="hover:underline"
                     aria-label="Sort by balance"
                   >
-                    Balance (USD){sortBy === "balance" ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+                    Balance (USD)
+                    {sortBy === "balance"
+                      ? sortDir === "asc"
+                        ? " ↑"
+                        : " ↓"
+                      : ""}
                   </button>
                 </th>
                 <th className="px-3 py-2 font-medium">
@@ -172,7 +218,12 @@ export default function UsersTable() {
                     className="hover:underline"
                     aria-label="Sort by last login"
                   >
-                    Last Login{sortBy === "last_login" ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+                    Last Login
+                    {sortBy === "last_login"
+                      ? sortDir === "asc"
+                        ? " ↑"
+                        : " ↓"
+                      : ""}
                   </button>
                 </th>
                 <th className="px-3 py-2 font-medium text-center">Actions</th>
@@ -208,7 +259,10 @@ export default function UsersTable() {
 
               {error && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-3 py-6 text-center text-muted-foreground"
+                  >
                     Failed to load users.
                   </td>
                 </tr>
@@ -231,18 +285,25 @@ export default function UsersTable() {
                       <Badge
                         variant={
                           u.kyc_status === "Pending"
-                              ? "secondary"
-                              : "destructive"
+                            ? "secondary"
+                            : "destructive"
                         }
-                        className={`${u.kyc_status === "Approved" ? 'bg-green-500' : ''}`}
+                        className={`${
+                          u.kyc_status === "Approved" ? "bg-green-500" : ""
+                        }`}
                       >
                         {u.kyc_status}
                       </Badge>
                     </td>
                     <td className="px-3 py-2 tabular-nums">
-                      ${u.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      $
+                      {u.balance.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
-                    <td className="px-3 py-2">{new Date(u.last_login).toLocaleString()}</td>
+                    <td className="px-3 py-2">
+                      {new Date(u.last_login).toLocaleString()}
+                    </td>
                     <td className="px-3 py-2">
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/users/${u.id}`}>
@@ -250,7 +311,11 @@ export default function UsersTable() {
                             View Details
                           </Button>
                         </Link>
-                        <Button size="sm" variant="destructive" onClick={() => suspendUser(u.id)}>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => suspendUser(u.id)}
+                        >
                           Suspend
                         </Button>
                       </div>
@@ -260,7 +325,10 @@ export default function UsersTable() {
 
               {!isLoading && !error && data?.items.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-3 py-6 text-center text-muted-foreground"
+                  >
                     No users found.
                   </td>
                 </tr>
@@ -271,7 +339,9 @@ export default function UsersTable() {
 
         <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
           <div className="text-xs text-muted-foreground">
-            Page {page} of {data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1} • {data?.total ?? 0} results
+            Page {page} of{" "}
+            {data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1} •{" "}
+            {data?.total ?? 0} results
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -286,7 +356,10 @@ export default function UsersTable() {
               variant="secondary"
               size="sm"
               onClick={() => setPage(page + 1)}
-              disabled={(!!data && page >= Math.ceil(data.total / pageSize)) || isLoading}
+              disabled={
+                (!!data && page >= Math.ceil(data.total / pageSize)) ||
+                isLoading
+              }
             >
               Next
             </Button>
@@ -294,5 +367,5 @@ export default function UsersTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }

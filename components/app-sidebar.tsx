@@ -1,31 +1,40 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  Sidebar, SidebarContent,SidebarGroup,  SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarRail,
-} from "@/components/ui/sidebar"
-import {  Users, Settings, ChevronRight } from "lucide-react"
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { Users, Settings, ChevronRight } from "lucide-react";
 
 type NavItem = {
-  title: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-  badge?: string
-}
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+};
 
-const mainNav: NavItem[] = [
-  { title: "Users", href: "/users", icon: Users },
-]
+const mainNav: NavItem[] = [{ title: "Users", href: "/users", icon: Users }];
 
-const systemNav: NavItem[] = [{ title: "Settings", href: "/settings", icon: Settings }]
+const systemNav: NavItem[] = [
+  { title: "Settings", href: "/settings", icon: Settings },
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const isActive = (href: string) => pathname === href || (href !== "/" && pathname?.startsWith(href))
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/" && pathname?.startsWith(href));
 
   return (
     <Sidebar collapsible="icon" className="border-r">
@@ -41,8 +50,8 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarMenu>
             {mainNav.map((item) => {
-              const Icon = item.icon
-              const active = isActive(item.href)
+              const Icon = item.icon;
+              const active = isActive(item.href);
               return (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={active}>
@@ -51,20 +60,21 @@ export function AppSidebar() {
                         <Icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </span>
-                      <ChevronRight className={`h-4 w-4 transition-transform ${active ? "rotate-90" : ""}`} />
+                      <ChevronRight
+                        className={`h-4 w-4 transition-transform ${
+                          active ? "rotate-90" : ""
+                        }`}
+                      />
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )
+              );
             })}
           </SidebarMenu>
         </SidebarGroup>
-
-       
       </SidebarContent>
-
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

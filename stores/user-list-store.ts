@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { create } from "zustand"
-import type { KycStatus } from "@/lib/types"
+import { create } from "zustand";
+import type { KycStatus } from "@/lib/types";
 
-type SortBy = "balance" | "last_login" | ""
-type SortDir = "asc" | "desc"
+type SortBy = "balance" | "last_login" | "";
+type SortDir = "asc" | "desc";
 
 type State = {
-  q: string
-  kyc: KycStatus | "All"
-  sortBy: SortBy
-  sortDir: SortDir
-  page: number
-  pageSize: number
-  selected: Set<number>
-  isToggled: boolean
-}
+  q: string;
+  kyc: KycStatus | "All";
+  sortBy: SortBy;
+  sortDir: SortDir;
+  page: number;
+  pageSize: number;
+  selected: Set<number>;
+  isToggled: boolean;
+};
 
 type Actions = {
-  setQuery: (q: string) => void
-  setKyc: (k: KycStatus | "All") => void
-  setSort: (by: "balance" | "last_login") => void
-  setPage: (p: number) => void
-  setPageSize: (ps: number) => void
-  toggleSelect: (id: number) => void
-  toggleSelectAllVisible: (ids: number[]) => void
-  clearSelection: () => void
-}
+  setQuery: (q: string) => void;
+  setKyc: (k: KycStatus | "All") => void;
+  setSort: (by: "balance" | "last_login") => void;
+  setPage: (p: number) => void;
+  setPageSize: (ps: number) => void;
+  toggleSelect: (id: number) => void;
+  toggleSelectAllVisible: (ids: number[]) => void;
+  clearSelection: () => void;
+};
 
 export const useUserListStore = create<State & Actions>((set, get) => ({
   q: "",
@@ -42,11 +42,11 @@ export const useUserListStore = create<State & Actions>((set, get) => ({
   setKyc: (kyc) => set({ kyc }),
 
   setSort: (by) => {
-    const { sortBy, sortDir } = get()
+    const { sortBy, sortDir } = get();
     if (sortBy === by) {
-      set({ sortDir: sortDir === "asc" ? "desc" : "asc" })
+      set({ sortDir: sortDir === "asc" ? "desc" : "asc" });
     } else {
-      set({ sortBy: by, sortDir: "desc" })
+      set({ sortBy: by, sortDir: "desc" });
     }
   },
 
@@ -54,25 +54,25 @@ export const useUserListStore = create<State & Actions>((set, get) => ({
   setPageSize: (pageSize) => set({ pageSize, page: 1 }),
 
   toggleSelect: (id) => {
-    const next = new Set(get().selected)
-    if (next.has(id)) next.delete(id)
-    else next.add(id)
-    set({ selected: next, isToggled: next.size > 0 })  
+    const next = new Set(get().selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    set({ selected: next, isToggled: next.size > 0 });
   },
 
   toggleSelectAllVisible: (ids) => {
-    const { selected } = get()
-    const allSelected = ids.every((id) => selected.has(id))
-    const next = new Set(selected)
+    const { selected } = get();
+    const allSelected = ids.every((id) => selected.has(id));
+    const next = new Set(selected);
 
     if (allSelected) {
-      ids.forEach((id) => next.delete(id))
+      ids.forEach((id) => next.delete(id));
     } else {
-      ids.forEach((id) => next.add(id))
+      ids.forEach((id) => next.add(id));
     }
 
-    set({ selected: next, isToggled: next.size > 0 }) 
+    set({ selected: next, isToggled: next.size > 0 });
   },
 
   clearSelection: () => set({ selected: new Set(), isToggled: false }),
-}))
+}));
